@@ -1,7 +1,9 @@
-Dataset Link : https://www.kaggle.com/carrie1/ecommerce-data
-
 #!/usr/bin/env python
 # coding: utf-8
+
+# https://www.kaggle.com/carrie1/ecommerce-data
+# 
+# https://medium.com/edureka/apriori-algorithm-d7cc648d4f1e
 
 # In[4]:
 
@@ -114,49 +116,5 @@ basket_Sweden = (data[data['Country'] =="Sweden"]
 
 
 basket_France.head()
-
-
-# In[18]:
-
-
-##Hot encoding the Data
-def hot_encode(x): 
-    if(x<= 0): 
-        return 0
-    if(x>= 1): 
-        return 1
-  
-# Encoding the datasets 
-basket_encoded = basket_France.applymap(hot_encode) 
-basket_France = basket_encoded 
-  
-basket_encoded = basket_UK.applymap(hot_encode) 
-basket_UK = basket_encoded 
-  
-basket_encoded = basket_Por.applymap(hot_encode) 
-basket_Por = basket_encoded 
-  
-basket_encoded = basket_Sweden.applymap(hot_encode) 
-basket_Sweden = basket_encoded 
-
-
-# In[28]:
-
-
-#France
-
-
-# Building the model 
-frq_items = apriori(basket_France, min_support = 0.05, use_colnames = True) 
-  
-# Collecting the inferred rules in a dataframe 
-rules = association_rules(frq_items, metric ="lift", min_threshold = 1) 
-rules = rules.sort_values(['confidence', 'lift'], ascending =[False, False]) 
-print(rules.head())
-
-
-# In[ ]:
-
-
 
 
