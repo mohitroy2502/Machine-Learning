@@ -1,3 +1,5 @@
+Apriori algorithm uses frequent itemsets to generate association rules. It is based on the concept that a subset of a frequent itemset must also be a frequent itemset. Frequent Itemset is an itemset whose support value is greater than a threshold value(support).
+
 #!/usr/bin/env python
 # coding: utf-8
 
