@@ -1,0 +1,162 @@
+Dataset Link : https://www.kaggle.com/carrie1/ecommerce-data
+
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[4]:
+
+
+import pandas as pd
+from mlxtend.frequent_patterns import apriori
+from mlxtend.frequent_patterns import association_rules
+
+
+# In[13]:
+
+
+df = pd.read_csv("D:/Lectures IIT/Machine Learning/Learn/Apriori Algo/data.csv")
+
+
+# In[14]:
+
+
+df.head()
+
+
+# In[17]:
+
+
+#In this step, we will be doing:
+#Data clean up which includes removing spaces from some of the descriptions
+#Drop the rows that don’t have invoice numbers and remove the credit transactions
+df['Description'] = df['Description'].str.strip()
+df.dropna(axis=0, subset=['InvoiceNo'], inplace=True)
+df['InvoiceNo'] = df['InvoiceNo'].astype('str')
+df = df[~df['InvoiceNo'].str.contains('C')]
+
+
+# In[23]:
+
+
+#After the clean-up, we need to consolidate the items into 1 transaction per row with each product
+#For the sake of keeping the data set small, we are only looking at sales for France.
+
+basket = (df[df['Country'] =="France"]
+          .groupby(['InvoiceNo', 'Description'])['Quantity']
+          .sum().unstack().reset_index().fillna(0)
+          .set_index('InvoiceNo'))
+
+
+# In[22]:
+
+
+#There are a lot of zeros in the data but we also need to make sure any positive values are converted to a 1 and 
+#anything less than 0 is set to 0
+
+def encode_units(x):
+    if x <= 0:
+        return 0
+    if x >= 1:
+        return 1
+basket_sets = basket.applymap(encode_units)
+basket_sets.drop('POSTAGE', inplace=True, axis=1)
+basket_sets
+
+
+# In[25]:
+
+
+#Generate frequent itemsets that have a support value of at least 7% (this number is chosen so that you can get 
+#close enough) Generate the rules with their corresponding support, confidence and lift.
+
+frequent_itemsets = apriori(basket_sets, min_support=0.07, use_colnames=True)
+rules = association_rules(frequent_itemsets, metric="lift", min_threshold=1)
+rules
+
+
+# In[26]:
+
+
+#Filter the dataframe using standard pandas code, for a large lift (6) and high confidence (.8)
+
+rules[ (rules['lift'] >= 6) &
+      (rules['confidence'] >= 0.8) ]
+
+
+# In[26]:
+
+
+# Transactions done in France 
+basket_France = (data[data['Country'] =="France"] 
+          .groupby(['InvoiceNo', 'Description'])['Quantity'] 
+          .sum().unstack().reset_index().fillna(0) 
+          .set_index('InvoiceNo')) 
+  
+# Transactions done in the United Kingdom 
+basket_UK = (data[data['Country'] =="United Kingdom"] 
+          .groupby(['InvoiceNo', 'Description'])['Quantity'] 
+          .sum().unstack().reset_index().fillna(0) 
+          .set_index('InvoiceNo')) 
+  
+# Transactions done in Portugal 
+basket_Por = (data[data['Country'] =="Portugal"] 
+          .groupby(['InvoiceNo', 'Description'])['Quantity'] 
+          .sum().unstack().reset_index().fillna(0) 
+          .set_index('InvoiceNo')) 
+  
+basket_Sweden = (data[data['Country'] =="Sweden"] 
+          .groupby(['InvoiceNo', 'Description'])['Quantity'] 
+          .sum().unstack().reset_index().fillna(0) 
+          .set_index('InvoiceNo')) 
+
+
+# In[27]:
+
+
+basket_France.head()
+
+
+# In[18]:
+
+
+##Hot encoding the Data
+def hot_encode(x): 
+    if(x<= 0): 
+        return 0
+    if(x>= 1): 
+        return 1
+  
+# Encoding the datasets 
+basket_encoded = basket_France.applymap(hot_encode) 
+basket_France = basket_encoded 
+  
+basket_encoded = basket_UK.applymap(hot_encode) 
+basket_UK = basket_encoded 
+  
+basket_encoded = basket_Por.applymap(hot_encode) 
+basket_Por = basket_encoded 
+  
+basket_encoded = basket_Sweden.applymap(hot_encode) 
+basket_Sweden = basket_encoded 
+
+
+# In[28]:
+
+
+#France
+
+
+# Building the model 
+frq_items = apriori(basket_France, min_support = 0.05, use_colnames = True) 
+  
+# Collecting the inferred rules in a dataframe 
+rules = association_rules(frq_items, metric ="lift", min_threshold = 1) 
+rules = rules.sort_values(['confidence', 'lift'], ascending =[False, False]) 
+print(rules.head())
+
+
+# In[ ]:
+
+
+
+
